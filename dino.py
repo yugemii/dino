@@ -3,10 +3,12 @@ from pygame.locals import *
 
 WINDOWWIDTH = 600
 WINDOWHEIGHT = 150
-FPS = 60
+FPS = 60 #초당 프레임 수
 
+GRAVITY = 0.75 #?
 
-GRAVITY = 0.75
+pygame.mixer.init(44100, -16,2,2048)
+pygame.mixer.music.load("./sound/background.wav")
 
 SPEED_GROUND = 6
 IMG_GROUND = pygame.image.load('./img/ground.png')
@@ -15,7 +17,7 @@ SPEED_SKY = 1
 IMG_SKY = pygame.image.load('./img/sky.png')
 
 IMG_TREX = pygame.image.load('./img/tRex.png')
-TIME_CHANGE_TREX = 6
+TIME_CHANGE_TREX = 6 #공룡의 6가지 모양
 Y_TREX = 105
 X_TREX = 50
 HIGH_MIN = 90
@@ -33,7 +35,6 @@ Y_BIRD_3 = 50
 DISTANCE_MIN = 400
 DISTANCE_MAX = 600
 
-
 pygame.init()
 pygame.display.set_caption('T-REX')
 FPSCLOCK = pygame.time.Clock()
@@ -47,10 +48,10 @@ class T_Rex():
         self.img = IMG_TREX
         self.option = option
         self.surface = pygame.Surface((55, 43), pygame.SRCALPHA)
-        self.surface.blit(self.img, (0, 0), (80, 0, 40, 43))
+        self.surface.blit(self.img, (0, 0), (80, 0, 40, 43)) #가만히 있는 공룡
         self.timeChange = 0
-        self.jumping = False
-        self.lowering = False
+        self.jumping = False #점프
+        self.lowering = False #슬라이딩
     
     def update(self, up, down):
         self.surface.fill((0, 0, 0, 0))
@@ -133,7 +134,6 @@ class Catus():
     def draw(self):
         DISPLAYSURF.blit(self.surface, (self.x, self.y))
 
-
 class Bird():
     def __init__(self, x, y, option = 0):
         self.x = x
@@ -164,8 +164,6 @@ class Bird():
     def draw(self):
         DISPLAYSURF.blit(self.surface, (self.x, self.y))
 
-
-
 class ListCatusAndBirds():
     def __init__(self):
         self.list = []
@@ -195,8 +193,6 @@ class ListCatusAndBirds():
         for i in range(len(self.list)):
             self.list[i].draw()
 
-
-
 class Ground():
     def __init__(self):
         self.x = 0
@@ -215,7 +211,6 @@ class Ground():
     def draw(self):
         DISPLAYSURF.blit(self.img, (self.x, self.y))
 
-
 class Sky():
     def __init__(self):
         self.x = 0
@@ -233,7 +228,6 @@ class Sky():
     
     def draw(self):
         DISPLAYSURF.blit(self.img, (self.x, self.y))
-
 
 class Score():
     def __init__(self):
@@ -255,7 +249,7 @@ class Score():
         self.textHighScore = str(int(self.highScore))
         for i in range(5 - len(self.textHighScore)):
             self.textHighScore = '0' + self.textHighScore
-        self.textHighScore = "HI: " + self.textHighScore
+        self.textHighScore = "HI : " + self.textHighScore
     
     def draw(self):
         fontObj = pygame.font.SysFont('consolas', self.size)
@@ -303,6 +297,7 @@ def main():
 // Space to Play, Esc to Exit
 
 // Up to jump, Down to bow down""")
+    pygame.mixer.music.play(-1)
     sky = Sky()
     ground = Ground()
     tRex = T_Rex(0)
