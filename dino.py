@@ -7,8 +7,10 @@ FPS = 60 #초당 프레임 수
 
 GRAVITY = 0.75 #?
 
-pygame.mixer.init(44100, -16,2,2048)
-pygame.mixer.music.load("./sound/background.wav")
+pygame.mixer.init()
+BACKGROUND_SOUND = pygame.mixer.Sound("./sound/background.wav")
+OBSTACLE_SOUND = pygame.mixer.Sound("./sound/obstacles.wav")
+JUMPING_SOUND = pygame.mixer.Sound("./sound/jumping.wav")
 
 SPEED_GROUND = 6
 IMG_GROUND = pygame.image.load('./img/ground.png')
@@ -297,7 +299,7 @@ def main():
 // Space to Play, Esc to Exit
 
 // Up to jump, Down to bow down""")
-    pygame.mixer.music.play(-1)
+    BACKGROUND_SOUND.play(-1)
     sky = Sky()
     ground = Ground()
     tRex = T_Rex(0)
@@ -305,7 +307,7 @@ def main():
     down = False
     ls = ListCatusAndBirds()
     score = Score()
-    blinkText = BlinkText("Space to Play, Esc to Exit")
+    blinkText = BlinkText("Enter to Play, esc to Exit")
 # haven't start yet
     while True:
         isStart = False
@@ -313,7 +315,7 @@ def main():
             if event.type == QUIT or (event.type == KEYUP and event.key == K_ESCAPE):
                 pygame.quit()
                 sys.exit()
-            if event.type == KEYDOWN and event.key == K_SPACE:
+            if event.type == KEYDOWN and event.key == K_RETURN:
                 isStart = True
         if isStart:
             break
@@ -334,6 +336,7 @@ def main():
             if event.type == KEYDOWN:
                 if event.key == K_UP:
                     up = True
+                    JUMPING_SOUND.play() #효과음
                 elif event.key == K_DOWN:
                     down = True
             if event.type == KEYUP:
@@ -358,6 +361,7 @@ def main():
         score.draw()
 # game over and play again
         if isCollision(tRex, ls):
+            OBSTACLE_SOUND.play()
             tRex.surface.fill((0, 0, 0, 0))
             tRex.surface.blit(tRex.img, (0, 0), (120, 0, 40, 43))
             gameOverFontObj = pygame.font.SysFont('consolas', 30, bold=1)
@@ -368,7 +372,7 @@ def main():
                     if event.type == QUIT or (event.type == KEYUP and event.key == K_ESCAPE):
                         pygame.quit()
                         sys.exit()
-                    if event.type == KEYDOWN and event.key == K_SPACE:
+                    if event.type == KEYDOWN and event.key == K_RETURN:
                         isStart = True
                 if isStart:
                     break
