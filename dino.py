@@ -1,25 +1,27 @@
-import pygame, sys, random
+import pygame, sys, random, os
 from pygame.locals import *
 
 WINDOWWIDTH = 600
 WINDOWHEIGHT = 150
 FPS = 60 #초당 프레임 수
 
-GRAVITY = 0.75 #?
+GRAVITY = 0.75
 
+# 배경화면 및 효과음
 pygame.mixer.init()
 BACKGROUND_SOUND = pygame.mixer.Sound("./sound/background.wav")
 OBSTACLE_SOUND = pygame.mixer.Sound("./sound/obstacles.wav")
 JUMPING_SOUND = pygame.mixer.Sound("./sound/jumping.wav")
 
+# 속도
 SPEED_GROUND = 6
 IMG_GROUND = pygame.image.load('./img/ground.png')
 
 SPEED_SKY = 1
 IMG_SKY = pygame.image.load('./img/sky.png')
 
-IMG_TREX = pygame.image.load('./img/tRex.png')
-TIME_CHANGE_TREX = 6 #공룡의 6가지 모양
+IMG_TREX = pygame.image.load('./img/tRex_.png')
+TIME_CHANGE_TREX = 6
 Y_TREX = 105
 X_TREX = 50
 HIGH_MIN = 90
@@ -37,8 +39,6 @@ Y_BIRD_3 = 50
 DISTANCE_MIN = 400
 DISTANCE_MAX = 600
 
-UP_COUNT = 0
-
 pygame.init()
 pygame.display.set_caption('T-REX')
 FPSCLOCK = pygame.time.Clock()
@@ -52,23 +52,31 @@ class T_Rex():
         self.img = IMG_TREX
         self.option = option
         self.surface = pygame.Surface((55, 43), pygame.SRCALPHA)
+        # self.surface.blit(self.img, (0, 0), (270, 0, 55, 43))
         self.surface.blit(self.img, (0, 0), (80, 0, 40, 43)) #가만히 있는 공룡
         self.timeChange = 0
         self.jumping = False #점프
         self.lowering = False #슬라이딩
+        self.count = 0
     
     def update(self, up, down):
         self.surface.fill((0, 0, 0, 0))
-        if not self.jumping:
-            if up:
+        if not self.jumping: #점프 상태가 아닐 때
+            if up: #업 키를 누르면 점핑
                 self.jumping = True
                 self.speed = SPEED_TREX
-            elif down:
+                self.count += 1
+                print(self.count)
+                if self.count == 10:
+                    self.option = 6
+                    self.count = 0
+                    self.surface.blit(self.img, (0, 0), (270, 0, 55, 43))
+            elif down: #아니면 다운 상태임
                 self.lowering = True
-                if self.timeChange <= TIME_CHANGE_TREX:
-                    self.option = 4
+                if self.timeChange <= TIME_CHANGE_TREX: #다운 상태일 때 TIME_CHANGE_TREX
+                    self.option = 4 #option 은 4
                 else:
-                    self.option = 5
+                    self.option = 5 #시간이 변하면서 option 5
                 self.timeChange += 1
                 if self.timeChange > TIME_CHANGE_TREX * 2:
                     self.timeChange = 0
@@ -93,7 +101,6 @@ class T_Rex():
                 self.jumping = False
                 self.y = Y_TREX
 
-                
         if self.option == 0:
             self.surface.blit(self.img, (0, 0), (0, 0, 40, 43))
         elif self.option == 1:
@@ -106,8 +113,10 @@ class T_Rex():
             self.surface.blit(self.img, (0, 0), (160, 0, 55, 43))
         elif self.option == 5:
             self.surface.blit(self.img, (0, 0), (215, 0, 55, 43))
+        elif self.option == 6:
+            self.surface.blit(self.img, (0, 0), (270, 0, 55, 43))
+            print(self.option)
         
-    
     def draw(self):
         DISPLAYSURF.blit(self.surface, (self.x, self.y))
 
@@ -285,11 +294,6 @@ class BlinkText():
     def draw(self): 
         self.surface.set_alpha(self.alpha)
         DISPLAYSURF.blit(self.surface, (int(WINDOWWIDTH/2 - self.surface.get_width()/2), 100))
-
-def transform():
-    # 공룡이 익룡타고 5초간 무적 상태
-    # 장애물 부시는 그림 필요
-    print("Hello?")
         
 def isCollision(tRex, ls):
     tRexMask = pygame.mask.from_surface(tRex.surface)
@@ -315,7 +319,6 @@ def main():
     ls = ListCatusAndBirds()
     score = Score()
     blinkText = BlinkText("Enter to Play, esc to Exit")
-    UP_COUNT = 0
 # haven't start yet
     while True:
         isStart = False
@@ -342,14 +345,13 @@ def main():
                 pygame.quit()
                 sys.exit()
             if event.type == KEYDOWN:
-                if event.key == K_UP:
+                if event.key == K_SPACE:
                     up = True
-                    UP_COUNT += 1
                     JUMPING_SOUND.play() #효과음
                 elif event.key == K_DOWN:
                     down = True
             if event.type == KEYUP:
-                if event.key == K_UP:
+                if event.key == K_SPACE:
                     up = False
                 elif event.key == K_DOWN:
                     down = False
@@ -368,6 +370,7 @@ def main():
 
         score.update()
         score.draw()
+
 # game over and play again
         if isCollision(tRex, ls):
             OBSTACLE_SOUND.play()
@@ -396,15 +399,8 @@ def main():
                 pygame.display.update()
                 FPSCLOCK.tick(FPS)
             score.score = 0
-            UP_COUNT = 0
             ls = ListCatusAndBirds()
-
         pygame.display.update()
         FPSCLOCK.tick(FPS)
-        if UP_COUNT == 5:
-            transform()
-            print("UP_COUNT IS FULL")
-            UP_COUNT = 0
-            print("UP_COUNT IS RESET")
 if __name__ == '__main__':
     main()
