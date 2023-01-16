@@ -37,6 +37,8 @@ Y_BIRD_3 = 50
 DISTANCE_MIN = 400
 DISTANCE_MAX = 600
 
+UP_COUNT = 0
+
 pygame.init()
 pygame.display.set_caption('T-REX')
 FPSCLOCK = pygame.time.Clock()
@@ -284,6 +286,11 @@ class BlinkText():
         self.surface.set_alpha(self.alpha)
         DISPLAYSURF.blit(self.surface, (int(WINDOWWIDTH/2 - self.surface.get_width()/2), 100))
 
+def transform():
+    # 공룡이 익룡타고 5초간 무적 상태
+    # 장애물 부시는 그림 필요
+    print("Hello?")
+        
 def isCollision(tRex, ls):
     tRexMask = pygame.mask.from_surface(tRex.surface)
     for catusOrBird in ls.list:
@@ -308,6 +315,7 @@ def main():
     ls = ListCatusAndBirds()
     score = Score()
     blinkText = BlinkText("Enter to Play, esc to Exit")
+    UP_COUNT = 0
 # haven't start yet
     while True:
         isStart = False
@@ -336,6 +344,7 @@ def main():
             if event.type == KEYDOWN:
                 if event.key == K_UP:
                     up = True
+                    UP_COUNT += 1
                     JUMPING_SOUND.play() #효과음
                 elif event.key == K_DOWN:
                     down = True
@@ -387,10 +396,15 @@ def main():
                 pygame.display.update()
                 FPSCLOCK.tick(FPS)
             score.score = 0
+            UP_COUNT = 0
             ls = ListCatusAndBirds()
 
         pygame.display.update()
         FPSCLOCK.tick(FPS)
-
+        if UP_COUNT == 5:
+            transform()
+            print("UP_COUNT IS FULL")
+            UP_COUNT = 0
+            print("UP_COUNT IS RESET")
 if __name__ == '__main__':
     main()
