@@ -1,4 +1,4 @@
-import pygame, sys, random, os, time
+import pygame, sys, random, os
 from pygame.locals import *
 
 WINDOWWIDTH = 600
@@ -12,6 +12,7 @@ pygame.mixer.init()
 BACKGROUND_SOUND = pygame.mixer.Sound("./sound/background.wav")
 OBSTACLE_SOUND = pygame.mixer.Sound("./sound/obstacles.wav")
 JUMPING_SOUND = pygame.mixer.Sound("./sound/jumping.wav")
+ATTACK_SOUND = pygame.mixer.Sound("./sound/attack.wav")
 
 # 속도
 SPEED_GROUND = 6
@@ -21,10 +22,11 @@ SPEED_SKY = 1
 IMG_SKY = pygame.image.load('./img/sky.png')
 
 # 공룡
-IMG_TREX = pygame.image.load('./img/tRex.png')
+IMG_TREX = pygame.image.load('./img/tRex_.png')
 TIME_CHANGE_TREX = 6
-Y_TREX = 105
 X_TREX = 50
+Y_TREX = 105
+
 HIGH_MIN = 90
 SPEED_TREX = -12.5
 
@@ -33,67 +35,59 @@ ATTACK = pygame.image.load(os.path.join("img", "isAttack.png"))
 
 # 선인장
 IMG_CATUS = pygame.image.load('./img/cactus.png')
-Y_CATUS = 100
+Y_CATUS = 100 #선인장 높이?
 
-BIRD_IMG = pygame.image.load('./img/bird.png')
-TIME_CHANGE_BIRD = 10
-Y_BIRD_1 = 110
-Y_BIRD_2 = 80
-Y_BIRD_3 = 50
-
-DISTANCE_MIN = 400
+DISTANCE_MIN = 400 #뭘 의미하지?
 DISTANCE_MAX = 600
 
-pygame.init()
-pygame.display.set_caption('T-REX')
-FPSCLOCK = pygame.time.Clock()
+pygame.init() #라이브러리 초기화
+pygame.display.set_caption('T-REX') #게임창 이름
+FPSCLOCK = pygame.time.Clock() #초당 프레임 잡는 거
 DISPLAYSURF = pygame.display.set_mode((WINDOWWIDTH, WINDOWHEIGHT))
 
 class T_Rex():
     def __init__(self, option = 3):
-        self.x = X_TREX
-        self.y = Y_TREX
-        self.speed = 0
-        self.img = IMG_TREX
-        self.option = option
+        self.x = X_TREX #초기 좌표
+        self.y = Y_TREX #초기 좌표
+        self.speed = 0 #스피드 0
+        self.img = IMG_TREX # 공룡 이미지
+        self.option = option # 매개변수로 받은 option
         self.surface = pygame.Surface((55, 43), pygame.SRCALPHA)
         self.surface.blit(self.img, (0, 0), (80, 0, 40, 43)) #가만히 있는 공룡
-        self.timeChange = 0
+        self.timeChange = 0 # 시간 변화
         self.jumping = False #점프
         self.lowering = False #슬라이딩
     
-    def update(self, up, down):
-        self.surface.fill((0, 0, 0, 0))
+    def update(self, up, down): #상태변화
+        self.surface.fill((0, 0, 0, 0)) #투명한 배경
         if not self.jumping: #점프 상태가 아닐 때
             if up: #업 키를 누르면 점핑
-                self.jumping = True
-                self.speed = SPEED_TREX
+                self.jumping = True # 점프 상태가 True
+                self.speed = SPEED_TREX #-12.5 점프 높이
             elif down: #아니면 다운 상태임
                 self.lowering = True
-                if self.timeChange <= TIME_CHANGE_TREX: #다운 상태일 때 TIME_CHANGE_TREX
-                    self.option = 4 #option 은 4
-                else:
-                    self.option = 5 #시간이 변하면서 option 5
-                self.timeChange += 1
-                if self.timeChange > TIME_CHANGE_TREX * 2:
-                    self.timeChange = 0
-                    
+                # if self.timeChange <= 100: #다운 상태일 때 TIME_CHANGE_TREX
+                self.option = 4 #option 은 4
+                self.y = 50
+                # self.timeChange += 1 #timeChange 값을 계속 변화시킨다.
+                # print(self.timeChange)
+                # if self.timeChange > 100:
+                #     self.timeChange = 0
             else:
                 if self.timeChange <= TIME_CHANGE_TREX:
                     self.option = 0
+                    self.y = Y_TREX
                 else:
-                    self.option = 1
+                    self.option = 1 # 발구르는거
                 self.timeChange += 1
                 if self.timeChange > TIME_CHANGE_TREX * 2:
                     self.timeChange = 0
-        elif self.jumping:
+        elif self.jumping: #점프 상태일때
             self.option = 2
-
-            if self.y <= Y_TREX - HIGH_MIN and self.speed < 0 and (not up):
+            if self.y <= Y_TREX - HIGH_MIN and self.speed < 0 and (not up): #점프 상태도 아니고, y 좌표 위치가 15 보다 작으면 이미 점프 상태
                 self.speed = 0
             self.y += int(self.speed + GRAVITY/2)
             self.speed += GRAVITY
-
             if self.y >= Y_TREX:
                 self.jumping = False
                 self.y = Y_TREX
@@ -107,9 +101,9 @@ class T_Rex():
         elif self.option == 3:
             self.surface.blit(self.img, (0, 0), (120, 0, 40, 43))
         elif self.option == 4:
-            self.surface.blit(self.img, (0, 0), (160, 0, 55, 43))
+            self.surface.blit(self.img, (0, 0), (270, 0, 55, 43))
         elif self.option == 5:
-            self.surface.blit(self.img, (0, 0), (215, 0, 55, 43))
+            self.surface.blit(self.img, (0, 0), (270, 0, 55, 43))
         
     def draw(self):
         DISPLAYSURF.blit(self.surface, (self.x, self.y))
@@ -301,7 +295,6 @@ def isCollision(tRex, ls):
 class Attack():
     def __init__(self):
         self.count = 0
-
     def draw(self):
         DISPLAYSURF.blit(ATTACK, (200, 100))
 
@@ -320,6 +313,7 @@ def main():
     ls = ListCatusAndBirds()
     score = Score()
     attack = Attack()
+    change_count = 0
     blinkText = BlinkText("Enter to Play, esc to Exit")
 # haven't start yet
     while True:
@@ -352,14 +346,23 @@ def main():
                     attack.count += 1
                     JUMPING_SOUND.play() #효과음
                     print(attack.count)
-                elif event.key == K_DOWN:
-                    down = True
+                # elif event.key == K_DOWN:
+                #     down = True
             if event.type == KEYUP:
                 if event.key == K_SPACE:
                     up = False
-                elif event.key == K_DOWN:
-                    down = False
+                # elif event.key == K_DOWN:
+                #     down = False
 
+        if attack.count == 5:
+            ATTACK_SOUND.play()
+            down = True
+            if change_count >= 400:
+                down = False
+                change_count = 0
+                attack.count = 0
+            change_count += 1
+            print("change_count" + str(change_count))
         
         sky.update(score.score)
         sky.draw()
@@ -375,10 +378,6 @@ def main():
 
         score.update()
         score.draw()
-
-        if attack.count == 5:
-            
-            attack.draw()
                 
 # game over and play again
         if isCollision(tRex, ls):
@@ -408,8 +407,9 @@ def main():
                 pygame.display.update()
                 FPSCLOCK.tick(FPS)
             score.score = 0
+            attack.count = 0
+            down = False
             ls = ListCatusAndBirds()
-
         pygame.display.update()
         FPSCLOCK.tick(FPS)
 if __name__ == '__main__':
